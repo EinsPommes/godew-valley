@@ -168,16 +168,32 @@ func DrawItemBar() {
 
 		item = PlayerHotbar.Slots[i]
 
+		// left click on hotbar slot
 		if rl.CheckCollisionPointRec(mousePosition, buttonDest) && rl.IsMouseButtonPressed(rl.MouseLeftButton) && !Dragging.Drag {
 			PlayerHotbar.SelectedIndex = i
 			item = PlayerHotbar.Slots[i]
 
 			if item.Name != "" {
-				Dragging.Drag = true
-				Dragging.Item = item
-				Dragging.Source = i
-				Dragging.SourceType = "hotbar"
-				PlayerHotbar.Slots[i] = Item{}
+				// ctrl+click = quick move to inventory
+				if rl.IsKeyDown(rl.KeyLeftControl) || rl.IsKeyDown(rl.KeyRightControl) {
+					if PlayerInventory.AddItemToHotbar(item) {
+						PlayerHotbar.Slots[i] = Item{} // remove from hotbar
+					} else {
+						// inventory full, do normal drag instead
+						Dragging.Drag = true
+						Dragging.Item = item
+						Dragging.Source = i
+						Dragging.SourceType = "hotbar"
+						PlayerHotbar.Slots[i] = Item{}
+					}
+				} else {
+					// normal drag
+					Dragging.Drag = true
+					Dragging.Item = item
+					Dragging.Source = i
+					Dragging.SourceType = "hotbar"
+					PlayerHotbar.Slots[i] = Item{}
+				}
 			}
 		}
 
@@ -254,6 +270,10 @@ func ItemBarInput() {
 		openInventory = !openInventory
 	}
 
+	if rl.IsKeyPressed(rl.KeyEscape) {
+		openInventory = false
+	}
+
 }
 
 func DrawInventorySlots() {
@@ -271,16 +291,32 @@ func DrawInventorySlots() {
 
 		item = PlayerInventory.Slots[i]
 
+		// left click on inventory slot
 		if rl.CheckCollisionPointRec(mousePosition, buttonDest) && rl.IsMouseButtonPressed(rl.MouseLeftButton) && !Dragging.Drag {
 			PlayerInventory.SelectedIndex = i
 			item = PlayerInventory.Slots[i]
 
 			if item.Name != "" {
-				Dragging.Drag = true
-				Dragging.Item = item
-				Dragging.Source = i
-				Dragging.SourceType = "inventory"
-				PlayerInventory.Slots[i] = Item{}
+				// ctrl+click = quick move to hotbar
+				if rl.IsKeyDown(rl.KeyLeftControl) || rl.IsKeyDown(rl.KeyRightControl) {
+					if PlayerHotbar.AddItemToHotbar(item) {
+						PlayerInventory.Slots[i] = Item{} // remove from inv
+					} else {
+						// hotbar full, do normal drag instead
+						Dragging.Drag = true
+						Dragging.Item = item
+						Dragging.Source = i
+						Dragging.SourceType = "inventory"
+						PlayerInventory.Slots[i] = Item{}
+					}
+				} else {
+					// normal drag
+					Dragging.Drag = true
+					Dragging.Item = item
+					Dragging.Source = i
+					Dragging.SourceType = "inventory"
+					PlayerInventory.Slots[i] = Item{}
+				}
 			}
 		}
 
