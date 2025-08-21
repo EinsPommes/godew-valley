@@ -25,7 +25,7 @@ var (
 )
 
 func drawScene() {
-	world.DrawWorld()
+	world.DrawWorld(player.Cam, screenWidth, screenHeight)
 
 	items.DrawItems()
 
