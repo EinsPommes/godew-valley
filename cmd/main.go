@@ -4,6 +4,7 @@ import (
 	"godew-valley/pkg/debug"
 	"godew-valley/pkg/items"
 	"godew-valley/pkg/player"
+	"godew-valley/pkg/save"
 	"godew-valley/pkg/userinterface"
 	"godew-valley/pkg/world"
 
@@ -45,7 +46,6 @@ func init() {
 
 	world.InitWorld()
 	world.InitDoors()
-	items.InitItems()
 	player.InitPlayer()
 	userinterface.InitUserInterface()
 
@@ -58,8 +58,12 @@ func init() {
 	printDebug = false
 
 	world.LoadMap("pkg/world/world.json")
-
 	userinterface.LoadUserInterfaceMap("pkg/userinterface/userinterface.json")
+
+	// Load item textures first, then load game state, then spawn items
+	items.InitItemTextures()
+	save.LoadGame()
+	items.InitItems()
 }
 
 func input() {
@@ -81,6 +85,14 @@ func input() {
 
 	if rl.IsKeyPressed(rl.KeyQ) {
 		musicPaused = !musicPaused
+	}
+
+	if rl.IsKeyPressed(rl.KeyF5) {
+		save.SaveGame()
+	}
+
+	if rl.IsKeyPressed(rl.KeyF9) {
+		save.LoadGame()
 	}
 
 	if rl.IsKeyPressed(rl.KeyEscape) {
@@ -124,6 +136,7 @@ func render() {
 }
 
 func quit() {
+	save.SaveGame()
 	player.UnloadPlayerTexture()
 	world.UnloadWorldTexture()
 	userinterface.UnloadUserInterface()
