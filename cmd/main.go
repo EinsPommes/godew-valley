@@ -59,8 +59,6 @@ func init() {
 
 	world.LoadMap("pkg/world/world.json")
 	userinterface.LoadUserInterfaceMap("pkg/userinterface/userinterface.json")
-
-	// Load item textures first, then load game state, then spawn items
 	items.InitItemTextures()
 	save.LoadGame()
 	items.InitItems()
@@ -139,6 +137,8 @@ func quit() {
 	save.SaveGame()
 	player.UnloadPlayerTexture()
 	world.UnloadWorldTexture()
+	world.UnloadDoors()
+	items.UnloadItems()
 	userinterface.UnloadUserInterface()
 	rl.UnloadMusicStream(music)
 	rl.CloseAudioDevice()

@@ -146,8 +146,12 @@ func DrawItemBar() {
 	buttonActiveDest := rl.NewRectangle(0, 0, 48, 48)
 
 	mousePosition := rl.GetMousePosition()
+	isValidMousePosition := mousePosition.X >= 0 && mousePosition.Y >= 0 && mousePosition.X <= screenWidth && mousePosition.Y <= screenHeight
 
 	for i, item := range PlayerHotbar.Slots {
+		if i >= len(PlayerHotbar.Slots) {
+			break
+		}
 		PlayerHotbar.Slots[i].X = int32(screenWidth/2 - 182 + (i * 35))
 		PlayerHotbar.Slots[i].Y = int32(screenHeight - UserInterface.MapHeight*UserInterface.TileSize + 194)
 		buttonDest.X = float32(PlayerHotbar.Slots[i].X)
@@ -169,7 +173,7 @@ func DrawItemBar() {
 		item = PlayerHotbar.Slots[i]
 
 		// left click on hotbar slot
-		if rl.CheckCollisionPointRec(mousePosition, buttonDest) && rl.IsMouseButtonPressed(rl.MouseLeftButton) && !Dragging.Drag {
+		if isValidMousePosition && rl.CheckCollisionPointRec(mousePosition, buttonDest) && rl.IsMouseButtonPressed(rl.MouseLeftButton) && !Dragging.Drag {
 			PlayerHotbar.SelectedIndex = i
 			item = PlayerHotbar.Slots[i]
 
@@ -197,11 +201,11 @@ func DrawItemBar() {
 			}
 		}
 
-		if rl.CheckCollisionPointRec(mousePosition, buttonDest) && rl.IsMouseButtonPressed(rl.MouseRightButton) && !Dragging.Drag {
+		if isValidMousePosition && rl.CheckCollisionPointRec(mousePosition, buttonDest) && rl.IsMouseButtonPressed(rl.MouseRightButton) && !Dragging.Drag {
 			splitItems(&PlayerHotbar.Slots[i], "hotbar")
 		}
 
-		if rl.CheckCollisionPointRec(mousePosition, buttonDest) && rl.IsMouseButtonReleased(rl.MouseLeftButton) && Dragging.Drag {
+		if isValidMousePosition && rl.CheckCollisionPointRec(mousePosition, buttonDest) && rl.IsMouseButtonReleased(rl.MouseLeftButton) && Dragging.Drag {
 			if i == Dragging.Source && Dragging.SourceType == "hotbar" {
 				placeItemInSlot(&PlayerHotbar.Slots[i], "hotbar")
 			} else if PlayerHotbar.Slots[i].Name != "" {
@@ -243,29 +247,33 @@ func renderItemBarLayer(Layer []Tile) {
 
 func ItemBarInput() {
 	key := rl.GetKeyPressed()
-	if key >= rl.KeyOne && key <= rl.KeyNine {
+	if key >= rl.KeyOne && key <= rl.KeyNine && len(PlayerHotbar.Slots) > int(key)-rl.KeyOne {
 		PlayerHotbar.SelectedIndex = int(key) - rl.KeyOne
 	}
 
-	if key == rl.KeyZero {
+	if key == rl.KeyZero && len(PlayerHotbar.Slots) > 9 {
 		PlayerHotbar.SelectedIndex = 9
 	}
 
-	scrollPosition := rl.GetMouseWheelMove()
+	mousePosition := rl.GetMousePosition()
+	if mousePosition.X >= 0 && mousePosition.Y >= 0 && mousePosition.X <= screenWidth && mousePosition.Y <= screenHeight {
+		scrollPosition := rl.GetMouseWheelMove()
 
-	if scrollPosition > 0 {
-		PlayerHotbar.SelectedIndex--
-		if PlayerHotbar.SelectedIndex < 0 {
-			PlayerHotbar.SelectedIndex = 9
+		if scrollPosition > 0 {
+			PlayerHotbar.SelectedIndex--
+			if PlayerHotbar.SelectedIndex < 0 {
+				PlayerHotbar.SelectedIndex = 9
+			}
+		}
+
+		if scrollPosition < 0 {
+			PlayerHotbar.SelectedIndex++
+			if PlayerHotbar.SelectedIndex > 9 {
+				PlayerHotbar.SelectedIndex = 0
+			}
 		}
 	}
 
-	if scrollPosition < 0 {
-		PlayerHotbar.SelectedIndex++
-		if PlayerHotbar.SelectedIndex > 9 {
-			PlayerHotbar.SelectedIndex = 0
-		}
-	}
 	if rl.IsKeyPressed(rl.KeyE) {
 		openInventory = !openInventory
 	}
@@ -280,8 +288,12 @@ func DrawInventorySlots() {
 	buttonSrc := rl.NewRectangle(224, 112, 48, 48)
 	buttonDest := rl.NewRectangle(0, 0, 48, 48)
 	mousePosition := rl.GetMousePosition()
+	isValidMousePosition := mousePosition.X >= 0 && mousePosition.Y >= 0 && mousePosition.X <= screenWidth && mousePosition.Y <= screenHeight
 
 	for i, item := range PlayerInventory.Slots {
+		if i >= len(PlayerInventory.Slots) {
+			break
+		}
 		PlayerInventory.Slots[i].X = int32(screenWidth/2 - 165 + (i % 9 * 35))
 		PlayerInventory.Slots[i].Y = int32(screenHeight/2 + 170 + (i / 9 * 40))
 		buttonDest.X = float32(PlayerInventory.Slots[i].X)
@@ -292,7 +304,7 @@ func DrawInventorySlots() {
 		item = PlayerInventory.Slots[i]
 
 		// left click on inventory slot
-		if rl.CheckCollisionPointRec(mousePosition, buttonDest) && rl.IsMouseButtonPressed(rl.MouseLeftButton) && !Dragging.Drag {
+		if isValidMousePosition && rl.CheckCollisionPointRec(mousePosition, buttonDest) && rl.IsMouseButtonPressed(rl.MouseLeftButton) && !Dragging.Drag {
 			PlayerInventory.SelectedIndex = i
 			item = PlayerInventory.Slots[i]
 
@@ -320,11 +332,11 @@ func DrawInventorySlots() {
 			}
 		}
 
-		if rl.CheckCollisionPointRec(mousePosition, buttonDest) && rl.IsMouseButtonPressed(rl.MouseRightButton) && !Dragging.Drag {
+		if isValidMousePosition && rl.CheckCollisionPointRec(mousePosition, buttonDest) && rl.IsMouseButtonPressed(rl.MouseRightButton) && !Dragging.Drag {
 			splitItems(&PlayerInventory.Slots[i], "inventory")
 		}
 
-		if rl.CheckCollisionPointRec(mousePosition, buttonDest) && rl.IsMouseButtonReleased(rl.MouseLeftButton) && Dragging.Drag {
+		if isValidMousePosition && rl.CheckCollisionPointRec(mousePosition, buttonDest) && rl.IsMouseButtonReleased(rl.MouseLeftButton) && Dragging.Drag {
 			if i == Dragging.Source && Dragging.SourceType == "inventory" {
 				placeItemInSlot(&PlayerInventory.Slots[i], "inventory")
 			} else if PlayerInventory.Slots[i].Name != "" {
@@ -398,6 +410,10 @@ func ScaleItemDest(i rl.Rectangle, s float32) rl.Rectangle {
 }
 
 func (h *Hotbar) AddItemToHotbar(newItem Item) bool {
+	if len(h.Slots) == 0 {
+		return false
+	}
+	
 	for i := range h.Slots {
 		if h.Slots[i].Name == newItem.Name && h.Slots[i].Quantity+newItem.Quantity <= maxQuantity {
 			h.Slots[i].Quantity += newItem.Quantity

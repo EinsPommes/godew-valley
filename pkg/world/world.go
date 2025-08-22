@@ -58,7 +58,7 @@ func LoadMap(mapFile string) {
 
 	json.Unmarshal(byteValue, &WorldMap)
 
-	// Cache layer slices once after load (Layer-Caching)
+	// Cache layer
 	BackgroundTiles = nil
 	WaterTiles = nil
 	Structures = nil

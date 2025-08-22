@@ -183,6 +183,6 @@ func UpdateItems() {
 	}
 }
 
-func UnloadAxe() {
+func UnloadItems() {
 	rl.UnloadTexture(ItemsSprite)
 }
